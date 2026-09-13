@@ -42,6 +42,28 @@ font_win = font.Font(None, 72)
 font_main = font.Font(None, 36)
 # --- ЗОБРАЖЕННЯ ----
 
+def draw_background():
+    """Малює задній фон: вертикальний градієнт + центральна пунктирна лінія + рамка поля."""
+    top_color = (10, 10, 40)
+    bottom_color = (30, 30, 70)
+    for y in range(HEIGHT):
+        ratio = y / HEIGHT
+        r = int(top_color[0] + (bottom_color[0] - top_color[0]) * ratio)
+        g = int(top_color[1] + (bottom_color[1] - top_color[1]) * ratio)
+        b = int(top_color[2] + (bottom_color[2] - top_color[2]) * ratio)
+        draw.line(screen, (r, g, b), (0, y), (WIDTH, y))
+
+    # Центральна пунктирна лінія
+    dash_height = 15
+    gap = 10
+    y = 0
+    while y < HEIGHT:
+        draw.rect(screen, (255, 255, 255), (WIDTH // 2 - 2, y, 4, dash_height))
+        y += dash_height + gap
+
+    # Рамка ігрового поля
+    draw.rect(screen, (255, 255, 255), (5, 5, WIDTH - 10, HEIGHT - 10), 3)
+
 # --- ЗВУКИ ---
 
 # --- ГРА ---
@@ -56,14 +78,14 @@ while True:
             exit()
 
     if "countdown" in game_state and game_state["countdown"] > 0:
-        screen.fill((0, 0, 0))
+        draw_background()
         countdown_text = font.Font(None, 72).render(str(game_state["countdown"]), True, (255, 255, 255))
         screen.blit(countdown_text, (WIDTH // 2 - 20, HEIGHT // 2 - 30))
         display.update()
         continue  # Не малюємо гру до завершення відліку
 
     if "winner" in game_state and game_state["winner"] is not None:
-        screen.fill((20, 20, 20))
+        draw_background()
 
         if you_winner is None:  # Встановлюємо тільки один раз
             if game_state["winner"] == my_id:
@@ -88,7 +110,7 @@ while True:
         continue  # Блокує гру після перемоги
 
     if game_state:
-        screen.fill((30, 30, 30))
+        draw_background()
         draw.rect(screen, (0, 255, 0), (20, game_state['paddles']['0'], 20, 100))
         draw.rect(screen, (255, 0, 255), (WIDTH - 40, game_state['paddles']['1'], 20, 100))
         draw.circle(screen, (255, 255, 255), (game_state['ball']['x'], game_state['ball']['y']), 10)
@@ -104,6 +126,7 @@ while True:
                 pass
 
     else:
+        draw_background()
         wating_text = font_main.render(f"Очікування гравців...", True, (255, 255, 255))
         screen.blit(wating_text, (WIDTH // 2 - 25, 20))
 
